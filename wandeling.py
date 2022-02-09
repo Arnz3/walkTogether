@@ -1,4 +1,5 @@
 import csv
+from optparse import check_choice
 import time
 import os
 from ublox_gps import UbloxGps
@@ -20,6 +21,10 @@ ch_uuid ="AAE28F02-71B5-42A1-8C3C-F9CF6AC969D0"
 vib1sec = bytes.fromhex("FF086B016414012E")
 vib3sec = bytes.fromhex("FF086B01643C01D6")
 vib2x1sec = bytes.fromhex("FF0E6B0264141464141454")
+
+#rough coords the gps should be on
+nrml_lat = 51
+nrml_lon = 2
 
 #declare variables
 point_number = 1 #number to indicate next waypoint
@@ -55,6 +60,23 @@ def connect():    #connect to smartbands
     svcR = rBand.getServiceByUUID(svc_uuid)
     l = svcL.getCharacteristics(ch_uuid)[0]
     r = svcR.getCharacteristics(ch_uuid)[0]
+
+
+def checkCoords():
+    geo = gps.geo_coords()
+    lat = str(geo.lat)
+    lon = str(geo.lon)
+
+    if int(lat.split('.')[0]) == nrml_lat and int(lon.split('.')[0]) == nrml_lon:
+        l.write(vib1sec)
+        r.write(vib1sec)
+        time.sleep(1.5)
+        l.write(vib3sec)
+        r.write(vib3sec)
+        time.sleep(3)
+
+    else:
+        checkCoords()
 
 
 #function to receive and save data from waypoint
@@ -113,7 +135,8 @@ def specialAction(code):
             time.sleep(1)
         sys.exit()
 
-connect()   
+connect()
+checkCoords()   
 try:
     loadPointInfo(point_number)
     while True:
