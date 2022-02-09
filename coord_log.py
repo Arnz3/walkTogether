@@ -5,8 +5,8 @@ from ublox_gps import UbloxGps
 port = serial.Serial('/dev/ttyACM0', baudrate=38400, timeout=1)
 gps = UbloxGps(port)
 
-nrml_lat = 2
-nrml_lon = 51
+nrml_lat = 51
+nrml_lon = 2
 
 while True:
     geo = gps.geo_coords()
