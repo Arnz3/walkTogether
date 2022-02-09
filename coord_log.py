@@ -10,8 +10,8 @@ nrml_lon = 51
 
 while True:
     geo = gps.geo_coords()
-    lat = geo.lat
-    lon = geo.lon
+    lat = str(geo.lat)
+    lon = str(geo.lon)
 
     if int(lat.split('.')[0]) == nrml_lat and int(lon.split('.')[1]) == nrml_lon:
         print(lat + " , " + lon + " > gecallibreerd")
