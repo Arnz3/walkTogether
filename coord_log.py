@@ -18,4 +18,7 @@ while True:
 
     else:
         print(lat + " , " + lon + " > niet gecallibreerd")
+
+#hallo dit is een test
+
         
