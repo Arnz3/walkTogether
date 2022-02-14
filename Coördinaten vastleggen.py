@@ -4,10 +4,10 @@ from ublox_gps import UbloxGps
 import serial
 from datetime import datetime
 import RPi.GPIO as GPIO
-port = serial.Serial('/dev/serial0', baudrate=38400, timeout=1)
+port = serial.Serial('/dev/ttyACM0', baudrate=38400, timeout=1)
 gps = UbloxGps(port)
 
-f = open('docs/', 'w')
+f = open('docs/logs.csv', 'w')
 writer =  csv.writer(f)
 writer.writerow(['lat', 'lon', 'time'])
 GPIO.setmode(GPIO.BCM)
