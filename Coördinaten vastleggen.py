@@ -34,7 +34,7 @@ def getCurrentLocation():
 def leg_punt_vast():
     getCurrentLocation()
     print(lat_gps + lon_gps)
-    time = datetime.now().strftime("%H-%M-%S")
+    time = datetime.now().strftime("%H:%M:%S")
     writer.writerow([lat_gps, lon_gps, time])
 
 
