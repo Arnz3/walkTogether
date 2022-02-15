@@ -17,7 +17,7 @@ lon_gps = 0.0
 lat_gps = 0.0
 
 run = True
-waitTime = 3
+waitTime = 2
 
 def getCurrentLocation():
     print('loc')
