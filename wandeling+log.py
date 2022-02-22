@@ -37,7 +37,7 @@ lat_csv = 0.0
 turn_angle = 0.0  #angle that has to be turned on next point
 direction = 'L'
 
-csv_file = csv.reader(open('test thuis Milan.csv')) #read the csv file
+csv_file = csv.reader(open('docs/wandeling.csv')) #read the csv file
 csv_list = list(csv_file)   #convert file to list
 
 f = open('/home/pi/Downloads/gps/punten_thuisM.csv', 'w')
