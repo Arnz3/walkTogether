@@ -1,13 +1,19 @@
 import csv
 import time
-import os
-from ublox_gps import UbloxGps
 import serial
 import sys
+from ublox_gps import UbloxGps
 from bluepy.btle import *
 from datetime import datetime
-import RPi.GPIO as GPIO
-import threading
+
+
+#========= INITIALIZING GPS ========= 
+
+port = serial.Serial('/dev/serial0', baudrate=38400, timeout=1)
+gps = UbloxGps(port)
+
+
+#========= LOCAL VARIABLES ========= 
 
 #MAC address for the smartbands
 Lband_addr ="e7:0c:02:89:d7:a8"
@@ -25,7 +31,11 @@ vib2x1sec = bytes.fromhex("FF0E6B0264141464141454")
 #declare variables
 point_number = 1 #number to indicate next waypoint
 point_code = 0  #1='crossing road', 2='something to feel', 3='end'
-delay_time = 0.5
+delay_time = 1 
+
+#rough coords the gps should be on
+nrml_lat = 51
+nrml_lon = 2
 
 #to save coordinates
 max_difference = 0.00005 #max difference in lat and lon to be accepted
@@ -36,20 +46,17 @@ lat_csv = 0.0
 turn_angle = 0.0  #angle that has to be turned on next point
 direction = 'L'
 
-csv_file = csv.reader(open('docs/wandeling.csv')) #read the csv file
+dateTime = datetime.now().strftime("%m.%d-%H:%M:%S")
+
+csv_file = csv.reader(open('docs/test 00.csv')) #read the csv file
 csv_list = list(csv_file)   #convert file to list
 
-f = open('/home/pi/Downloads/gps/punten_thuisM.csv', 'w')
+f = open(f"docs/{dateTime}.csv", "w")
 writer =  csv.writer(f)
 writer.writerow(['time','lat', 'lon','lat_CSV','lon_csv'])
 
-GPIO.setmode(GPIO.BCM)
-GPIO.setwarnings(False)
-GPIO.setup(21,GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
-port = serial.Serial('/dev/serial0', baudrate=38400, timeout= delay_time)
-gps = UbloxGps(port)
-
+#========= FUNCTIONS ========= 
 
 def connect():    #connect to smartbands
     global l
@@ -69,6 +76,23 @@ def connect():    #connect to smartbands
     r = svcR.getCharacteristics(ch_uuid)[0]
 
 
+def checkCoords():
+    geo = gps.geo_coords()
+    lat = str(geo.lat)
+    lon = str(geo.lon)
+
+    if int(lat.split('.')[0]) == nrml_lat and int(lon.split('.')[0]) == nrml_lon:
+        l.write(vib1sec)
+        r.write(vib1sec)
+        time.sleep(1.5)
+        l.write(vib3sec)
+        r.write(vib3sec)
+        time.sleep(3)
+
+    else:
+        checkCoords()
+
+
 #function to receive and save data from waypoint
 def loadPointInfo(number):
     #use global to be able to change these variables
@@ -80,8 +104,7 @@ def loadPointInfo(number):
     lat_csv = float(csv_list[number][0])
     lon_csv = float(csv_list[number][1])
     direction = str(csv_list[number][2])
-    turn_angle = float(csv_list[number][3])
-    point_code = int(csv_list[number][4])
+    point_code = int(csv_list[number][-1])
 
 
 #function to receive curren location from gps module
@@ -93,8 +116,8 @@ def getCurrentLocation():
     lat_gps = geo.lat
     lon_gps = geo.lon
     print("GPS:      ",lat_gps,",",lon_gps)
-    
-    
+    timenow = datetime.now().strftime("%H:%M:%S")
+    writer.writerow([timenow,lat_gps,lon_gps])
 
 
 def changeToNextPoint():
@@ -106,12 +129,19 @@ def changeToNextPoint():
 
 #function to turn on the motor dependend on the angle and direction
 def turn(direction):
-    if direction.lower() == 'l':
-        l.write(vib1sec)
-        print("L")
-    else:
-        r.write(vib1sec)
-        print("R")
+    for letter in direction:
+        if letter.lower() == 'l':
+            l.write(vib1sec)
+            print("L")
+        elif letter.lower() == 'r':
+            r.write(vib1sec)
+            print("R")
+        elif letter.lower() == 'z':
+            print("cross")
+            l.write(vib2x1sec)
+            r.write(vib2x1sec)
+        else:
+            time.sleep(int(letter))
 
 #function to turn on the motors for a special action
 def specialAction(code):
@@ -130,32 +160,20 @@ def specialAction(code):
             time.sleep(1)
             r.write(vib1sec)
             time.sleep(1)
-        t1.join()
         f.close()
         sys.exit()
 
 
-def checkHalt():
-    if(GPIO.input(21)):
-        f.close()
-        exit()
+#========= MAIN LOOP ========= 
 
-def logging(): 
-    while True:
-        timenow = datetime.now().strftime("%H:%M:%S")
-        writer.writerow([timenow,lat_gps,lon_gps,lat_csv,lon_csv])
-        time.sleep(2)
-
-connect()   
-t1 = threading.Thread(target=logging)
-t1.start()
+connect()
+checkCoords()   
 try:
     loadPointInfo(point_number)
     while True:
         getCurrentLocation()
         print("CSV:      ",lat_csv,",",lon_csv)
         print("Verschil: ",abs(lat_gps-lat_csv),",",abs(lon_gps-lon_csv))
-        checkHalt()
         if abs(lon_gps - lon_csv) < max_difference and abs(lat_gps - lat_csv) < max_difference:
             timenow = datetime.now().strftime("%H:%M:%S")
             writer.writerow([timenow,lat_gps,lon_gps,lat_csv,lon_csv])

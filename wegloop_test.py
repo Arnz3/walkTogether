@@ -5,7 +5,7 @@ from ublox_gps import UbloxGps
 import serial
 from bluepy.btle import *
 
-port = serSerial('/dev/serial0', baudrate=38400, timeout=1)
+port = serSerial('/dev/ttyACM0', baudrate=38400, timeout=1)
 gps = UbloxGps(port)
 
 csv_file = csv.reader(open('test_thuis.csv')) #read the csv file
@@ -85,18 +85,19 @@ def getCurrentLocation():
 
 
 loadPointInfo(1)
+connect()
 
+previous_distance = 9999999999999999
 while True:
-    previous_distance = 9999999999999999
     getCurrentLocation()
     current_distance = distance(lat_csv, lon_csv, lat_gps, lon_gps)
     if previous_distance - current_distance < foutloop_treshold:
         wrong = True
         startTime = time.time()
         while wrong:
-            getCurrentlocation()
+            getCurrentLocation()
             current_distance = distance(lat_csv, lon_csv, lat_gps, lon_gps)
-            if startTime - time.time() > 3 and wrong == True:
+            if startTime - time.time() > 5 and wrong == True:
                 print("ik loop fout")
                 l.write(vib1sec)
                 r.write(vib1sec)
@@ -105,6 +106,7 @@ while True:
                 wrong = False
                 break
             time.sleep(delay_time)
+            previous_distance = current_distance
 
     previous_distance = current_distance
     time.sleep(delay_time)
