@@ -113,11 +113,19 @@ def changeToNextPoint():
 
 #function to turn on the motor dependend on the angle and direction
 def turn(direction):
-    if direction.lower() == 'l':
-        l.write(vib1sec)
-    else:
-        r.write(vib1sec)
-
+    for letter in direction:
+        if letter.lower() == 'l':
+            l.write(vib1sec)
+            print("L")
+        elif letter.lower() == 'r':
+            r.write(vib1sec)
+            print("R")
+        elif letter.lower() == 'z':
+            print("cross")
+            l.write(vib2x1sec)
+            r.write(vib2x1sec)
+        else:
+            time.sleep(int(letter))
 
 #function to turn on the motors for a special action
 def specialAction(code):

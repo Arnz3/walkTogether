@@ -48,7 +48,7 @@ direction = 'L'
 
 dateTime = datetime.now().strftime("%m.%d-%H:%M:%S")
 
-csv_file = csv.reader(open('docs/test 00.csv')) #read the csv file
+csv_file = csv.reader(open('docs/wandeling.csv')) #read the csv file
 csv_list = list(csv_file)   #convert file to list
 
 f = open(f"docs/{dateTime}.csv", "w")
