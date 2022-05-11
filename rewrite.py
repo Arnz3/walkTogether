@@ -51,10 +51,6 @@ dateTime = datetime.now().strftime("%m.%d-%H:%M:%S")
 csv_file = csv.reader(open('docs/wandeling.csv')) #read the csv file
 csv_list = list(csv_file)   #convert file to list
 
-f = open(f"docs/{dateTime}.csv", "w")
-writer =  csv.writer(f)
-writer.writerow(['time','lat', 'lon','lat_CSV','lon_csv'])
-
 
 #========= FUNCTIONS ========= 
 
@@ -115,9 +111,7 @@ def getCurrentLocation():
     geo = gps.geo_coords()
     lat_gps = geo.lat
     lon_gps = geo.lon
-    print("GPS:      ",lat_gps,",",lon_gps)
-    timenow = datetime.now().strftime("%H:%M:%S")
-    writer.writerow([timenow,lat_gps,lon_gps])
+
 
 
 def changeToNextPoint():
@@ -175,8 +169,6 @@ try:
         print("CSV:      ",lat_csv,",",lon_csv)
         print("Verschil: ",abs(lat_gps-lat_csv),",",abs(lon_gps-lon_csv))
         if abs(lon_gps - lon_csv) < max_difference and abs(lat_gps - lat_csv) < max_difference:
-            timenow = datetime.now().strftime("%H:%M:%S")
-            writer.writerow([timenow,lat_gps,lon_gps,lat_csv,lon_csv])
             print("point")
             turn(direction)
             specialAction(point_code)
