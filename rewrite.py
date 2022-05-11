@@ -9,7 +9,7 @@ from datetime import datetime
 
 #========= INITIALIZING GPS ========= 
 
-port = serial.Serial('/dev/serial0', baudrate=38400, timeout=1)
+port = serial.Serial('/dev/ttyACM0', baudrate=38400, timeout=1)
 gps = UbloxGps(port)
 
 
@@ -154,7 +154,6 @@ def specialAction(code):
             time.sleep(1)
             r.write(vib1sec)
             time.sleep(1)
-        f.close()
         sys.exit()
 
 
