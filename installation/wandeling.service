@@ -1,0 +1,10 @@
+[Unit]
+Description=Start Walk
+After=multi-user.target
+
+[Service]
+Type=idle
+ExecStart=/usr/bin/pyton3 /home/pi/Desktop/walkTogether/rewrite.py
+
+[Install]
+WantedBy=multi-user.target
