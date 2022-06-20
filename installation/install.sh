@@ -11,7 +11,7 @@ sudo mv -f wandeling.service /lib/systemd/system/
 sudo chmod 644 /lib/systemd/system/wandeling.service
 
 #reload deamon
-sudo systemctl deamon-reload
+sudo systemctl daemon-reload
 sudo systemctl enable wandeling.service
 
 #install pip packages
